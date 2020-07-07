@@ -1,18 +1,21 @@
 import sys
+import inspect
 from multiprocessing import Process, Queue
 
 
-def sample(a, b):
-    x = a + b
-    y = x * 2
-    print('Sample: ' + str(y))
+def inner():
+    return 1
+
+
+def sample(arg_a, arg_b):
+    addition = arg_a + arg_b
+    multiply = addition * arg_a * arg_b
+    inner()
+    print('Sample: ' + str(multiply))
 
 
 def trace_calls(frame, event, arg):
-    if frame.f_code.co_name == "sample":
-        print(frame.f_code)
-        return trace_lines
-    return
+    return trace_lines
 
 
 breakpoints = {}
@@ -20,7 +23,21 @@ commands = Queue()
 
 
 def trace_lines(frame, event, arg):
-    print(frame.f_lineno)
+    code = frame.f_code
+    func_name = code.co_name
+    line_no = frame.f_lineno
+    filename = code.co_filename
+    source = inspect.getsourcelines(code)[0]
+    start_line = code.co_firstlineno
+    print(f'{filename}:{func_name}:{line_no}')
+
+    for index, source_line in enumerate(source, start=0):
+        idx = line_no - start_line
+        if idx == index:
+            print('>', source_line.rstrip()[2:])
+        if idx in [index - 1, index + 1] and index > 0:
+            print(source_line.rstrip())
+
     cmd = commands.get()
     if cmd == 's':
         return trace_lines
@@ -32,29 +49,27 @@ def trace_lines(frame, event, arg):
         raise 'stop execution'
 
 
-def debug(q):
+def debug():
     sys.settrace(trace_calls)
     sample(2, 3)
 
 
-p = Process(target=debug, args=(commands,))
+p = Process(target=debug)
 p.start()
+
 
 for line in sys.stdin:
     command = line.split()
-
     if command[0] == 'q':
         print('qutting debugger')
         commands.put('q')
         break
 
     if command[0] == 'b':
-        filename, line_no = command[1].split(':')
-        breakpoints[f'{filename}:{line_no}'] = True
-        print(f'breaking at {filename} {line_no}')
+        file, line = command[1].split(':')
+        breakpoints[f'{file}:{line}'] = True
+        print(f'breaking at {file} {line}')
     if command[0] == 'c':
-        print('continuing execution')
         commands.put('c')
     if command[0] == 's':
-        print('stepping')
         commands.put('s')
