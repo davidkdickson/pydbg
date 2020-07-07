@@ -38,7 +38,9 @@ def trace_lines(frame, event, arg):
         if idx in [index - 1, index + 1] and index > 0:
             print(source_line.rstrip())
 
+    print('(pydbg)', end=" ", flush=True)
     cmd = commands.get()
+
     if cmd == 's':
         return trace_lines
 
@@ -56,7 +58,6 @@ def debug():
 
 p = Process(target=debug)
 p.start()
-
 
 for line in sys.stdin:
     command = line.split()
