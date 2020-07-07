@@ -14,15 +14,7 @@ def sample(arg_a, arg_b):
     print('Sample: ' + str(multiply))
 
 
-def trace_calls(frame, event, arg):
-    return trace_lines
-
-
-breakpoints = {}
-commands = Queue()
-
-
-def trace_lines(frame, event, arg):
+def print_source(frame):
     code = frame.f_code
     func_name = code.co_name
     line_no = frame.f_lineno
@@ -38,6 +30,23 @@ def trace_lines(frame, event, arg):
         if idx in [index - 1, index + 1] and index > 0:
             print(source_line.rstrip())
 
+
+def trace_calls(frame, event, arg):
+    print('(pydbg)', end=" ", flush=True)
+    cmd = commands.get()
+    if cmd == 's':
+        return trace_lines
+    if cmd == 'n':
+        return
+    return trace_lines
+
+
+breakpoints = {}
+commands = Queue()
+
+
+def trace_lines(frame, event, arg):
+    print_source(frame)
     print('(pydbg)', end=" ", flush=True)
     cmd = commands.get()
 
