@@ -35,26 +35,41 @@ def print_source(frame):
         if idx in [index - 1, index + 1] and index > 0:
             print(source_line.rstrip())
 
+
 def get_command():
     print('(pydbg)', end=" ", flush=True)
     return commands.get()
 
-def trace_calls(frame, event, arg):
-    print(f'trace_calls: {event}')
-    return trace_lines
-
 
 breakpoints = {}
 commands = Queue()
+cmd = None
+
+def trace_calls(frame, event, arg):
+    global cmd
+
+    if event == 'call' and cmd in ['n', 'f']:
+        return (cmd := None)
+
+    print_source(frame)
+    cmd = get_command()
+
+    if cmd in ['s', 'n']:
+        return trace_lines
+
+    if cmd == 'f':
+        return (cmd := None)
+
+    raise 'unknown command'
 
 
 def trace_lines(frame, event, arg):
+    global cmd
+
     if event != 'line':
-        print(f'trace_lines: {event}')
         return
 
     print_source(frame)
-
     cmd = get_command()
 
     if cmd == 's':
