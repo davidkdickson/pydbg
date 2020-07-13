@@ -19,6 +19,11 @@ def sample(arg_a, arg_b):
     y = 300
 
 
+breakpoints = {}
+commands = Queue()
+cmd = None
+
+
 def print_source(frame):
     code = frame.f_code
     func_name = code.co_name
@@ -36,23 +41,44 @@ def print_source(frame):
             print(source_line.rstrip())
 
 
-def get_command():
+def prompt():
     print('(pydbg)', end=" ", flush=True)
+    return
+
+
+def get_command():
+    prompt()
     return commands.get()
 
 
-breakpoints = {}
-commands = Queue()
-cmd = None
+def get_location(frame):
+    code = frame.f_code
+    func_name = code.co_name
+    line_no = frame.f_lineno
+    filename = code.co_filename
+    return f'{filename}:{line_no}'
+
 
 def trace_calls(frame, event, arg):
     global cmd
+    global breakpoints
 
+    # do not trace lines as previous command was (n)ext or (f)inish
     if event == 'call' and cmd in ['n', 'f']:
         return (cmd := None)
 
+    if event == 'call' and cmd == 'c' and not breakpoints.get(get_location(frame), False):
+        return continue_execution
+
     print_source(frame)
-    cmd = get_command()
+
+    command = get_command()
+    cmd = command['command']
+
+    while(cmd == 'b'):
+        breakpoints[command['line']] = True
+        command = get_command()
+        cmd = command['command']
 
     if cmd in ['s', 'n']:
         return trace_lines
@@ -60,28 +86,51 @@ def trace_calls(frame, event, arg):
     if cmd == 'f':
         return (cmd := None)
 
+    if cmd == 'c':
+        return continue_execution
+
     raise 'unknown command'
 
 
 def trace_lines(frame, event, arg):
     global cmd
+    global breakpoints
 
     if event != 'line':
         return
 
     print_source(frame)
-    cmd = get_command()
+
+    command = get_command()
+    cmd = command['command']
+
+    while(cmd == 'b'):
+        breakpoints[command['line']] = True
+        command = get_command()
+        cmd = command['command']
 
     if cmd == 's':
         return trace_lines
     if cmd == 'n':
-        print('next')
-        return trace_calls
+        return None
     if cmd == 'f':
         del frame.f_trace
         return None
+    if cmd == 'c':
+        return continue_execution
 
     raise 'unknown command'
+
+
+def continue_execution(frame, event, arg):
+    global breakpoints
+
+    location = get_location(frame)
+
+    if breakpoints.get(location, False):
+        return trace_lines
+
+    return continue_execution
 
 
 def debug():
@@ -100,13 +149,12 @@ for line in sys.stdin:
         break
     if command[0] == 'b':
         file, line = command[1].split(':')
-        breakpoints[f'{file}:{line}'] = True
-        print(f'breaking at {file} {line}')
+        commands.put({'command': 'b', 'line': f'{file}:{line}'})
     if command[0] == 'c':
-        commands.put('c')
+        commands.put({'command': 'c'})
     if command[0] == 's':
-        commands.put('s')
+        commands.put({'command': 's'})
     if command[0] == 'n':
-        commands.put('n')
+        commands.put({'command': 'n'})
     if command[0] == 'f':
-        commands.put('f')
+        commands.put({'command': 'f'})
