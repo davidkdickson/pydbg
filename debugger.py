@@ -99,6 +99,9 @@ def trace_lines(frame, event, arg):
     if event != 'line':
         return
 
+    if cmd == 'c':
+        return continue_execution
+
     print_source(frame)
 
     command = get_command()
@@ -123,11 +126,22 @@ def trace_lines(frame, event, arg):
 
 
 def continue_execution(frame, event, arg):
+    global cmd
     global breakpoints
 
     location = get_location(frame)
 
     if breakpoints.get(location, False):
+        del breakpoints[location]
+        print_source(frame)
+        command = get_command()
+        cmd = command['command']
+
+        while(cmd == 'b'):
+            breakpoints[command['line']] = True
+            command = get_command()
+            cmd = command['command']
+
         return trace_lines
 
     return continue_execution
