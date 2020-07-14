@@ -33,32 +33,28 @@ class Pydbg:
 
     def prompt(self):
         print('(pydbg)', end=" ", flush=True)
-        return
 
 
     def get_command(self):
         self.prompt()
-        line = input()
-        command = line.split()
-
-        if command[0] == 'q':
-            print('qutting debugger')
-            sys.exit(0)
-        if command[0] == 'b':
-            file, line = command[1].split(':')
-            return {'command': 'b', 'line': f'{file}:{line}'}
-        if command[0] == 'c':
-            return {'command': 'c'}
-        if command[0] == 's':
-            return {'command': 's'}
-        if command[0] == 'n':
-            return {'command': 'n'}
-        if command[0] == 'f':
-            return {'command': 'f'}
-
-        print(Color.RED.format('unknown command'))
-
-        return {'command': 'u'}
+        for line in sys.stdin:
+            command = line.split()
+            if command[0] == 'q':
+                print(Color.RED.format('quitting debugger'))
+                sys.exit(0)
+            if command[0] == 'b':
+                file, line = command[1].split(':')
+                return {'command': 'b', 'line': f'{file}:{line}'}
+            if command[0] == 'c':
+                return {'command': 'c'}
+            if command[0] == 's':
+                return {'command': 's'}
+            if command[0] == 'n':
+                return {'command': 'n'}
+            if command[0] == 'f':
+                return {'command': 'f'}
+            print(Color.RED.format('unknown command'))
+            self.prompt()
 
 
     def get_location(self, frame):
@@ -154,6 +150,5 @@ class Pydbg:
 def breakpoint():
     dbg = Pydbg()
     sys.settrace(dbg.trace_calls)
-
 
 
