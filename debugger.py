@@ -1,6 +1,12 @@
 import sys
 import inspect
 
+class Color:
+    RED     = "\033[31m {}\033[00m"
+    GREEN   = "\033[32m {}\033[00m"
+    BLUE    = "\033[34m {}\033[00m"
+
+
 class Pydbg:
     def __init__(self):
         self.breakpoints = {}
@@ -15,7 +21,7 @@ class Pydbg:
         source = inspect.getsourcelines(code)[0]
         start_line = code.co_firstlineno
 
-        print(f'{filename}:{func_name}:{line_no}')
+        print(Color.BLUE.format(f'{filename}:{func_name}:{line_no}'))
 
         for index, source_line in enumerate(source, start=0):
             idx = line_no - start_line
@@ -49,6 +55,10 @@ class Pydbg:
             return {'command': 'n'}
         if command[0] == 'f':
             return {'command': 'f'}
+
+        print(Color.RED.format('unknown command'))
+
+        return {'command': 'u'}
 
 
     def get_location(self, frame):
