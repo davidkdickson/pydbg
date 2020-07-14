@@ -147,5 +147,4 @@ def breakpoint():
     sys.settrace(trace_calls)
 
 
-if (__name__ == '__main__'):
-    pydbg()
+
