@@ -1,25 +1,7 @@
 import sys
 import inspect
-from multiprocessing import Process, Queue
-
-def inner():
-    x = 1 + 2
-    y = 2 + x
-    return y
-
-
-def sample(arg_a, arg_b):
-    addition = arg_a + arg_b
-    multiply = addition * arg_a * arg_b
-    inner()
-    y = 100 + 200
-    print('Sample: ' + str(multiply))
-    y = 200
-    y = 300
-
 
 breakpoints = {}
-commands = Queue()
 cmd = None
 
 def print_source(frame):
@@ -46,7 +28,23 @@ def prompt():
 
 def get_command():
     prompt()
-    return commands.get()
+    line = input()
+    command = line.split()
+
+    if command[0] == 'q':
+        print('qutting debugger')
+        sys.exit(0)
+    if command[0] == 'b':
+        file, line = command[1].split(':')
+        return {'command': 'b', 'line': f'{file}:{line}'}
+    if command[0] == 'c':
+        return {'command': 'c'}
+    if command[0] == 's':
+        return {'command': 's'}
+    if command[0] == 'n':
+        return {'command': 'n'}
+    if command[0] == 'f':
+        return {'command': 'f'}
 
 
 def get_location(frame):
@@ -145,33 +143,8 @@ def continue_execution(frame, event, arg):
     return continue_execution
 
 
-def debug(fn, args):
+def breakpoint():
     sys.settrace(trace_calls)
-    fn(*args)
-
-
-def pydbg():
-    print(sys._getframe().f_back)
-    p = Process(target=debug, args=(sample, (2,3)))
-    p.start()
-
-    for line in sys.stdin:
-        command = line.split()
-        if command[0] == 'q':
-            print('qutting debugger')
-            p.terminate()
-            break
-        if command[0] == 'b':
-            file, line = command[1].split(':')
-            commands.put({'command': 'b', 'line': f'{file}:{line}'})
-        if command[0] == 'c':
-            commands.put({'command': 'c'})
-        if command[0] == 's':
-            commands.put({'command': 's'})
-        if command[0] == 'n':
-            commands.put({'command': 'n'})
-        if command[0] == 'f':
-            commands.put({'command': 'f'})
 
 
 if (__name__ == '__main__'):

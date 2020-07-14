@@ -7,7 +7,6 @@ def inner():
 
 
 def sample(arg_a, arg_b):
-    dbg.pydbg()
     addition = arg_a + arg_b
     multiply = addition * arg_a * arg_b
     inner()
@@ -16,4 +15,5 @@ def sample(arg_a, arg_b):
     y = 200
     y = 300
 
+dbg.breakpoint()
 sample(4, 5)
