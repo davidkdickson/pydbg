@@ -1,10 +1,7 @@
 import sys
 import inspect
 
-class Color:
-    RED     = "\033[31m {}\033[00m"
-    GREEN   = "\033[32m {}\033[00m"
-    BLUE    = "\033[34m {}\033[00m"
+from color import Color
 
 
 class Pydbg:
@@ -20,6 +17,7 @@ class Pydbg:
         filename = code.co_filename
         source = inspect.getsourcelines(code)[0]
         start_line = code.co_firstlineno
+
 
         print(Color.BLUE.format(f'{filename}:{func_name}:{line_no}'))
 
@@ -39,6 +37,10 @@ class Pydbg:
         self.prompt()
         for line in sys.stdin:
             command = line.split()
+            if not command:
+                print(Color.RED.format('unknown command'))
+                self.prompt()
+                continue
             if command[0] == 'q':
                 print(Color.RED.format('quitting debugger'))
                 sys.exit(0)
