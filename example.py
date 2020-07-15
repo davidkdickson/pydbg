@@ -1,4 +1,4 @@
-import debugger as dbg
+import pydbg
 
 def inner():
     x = 1 + 2
@@ -15,5 +15,5 @@ def sample(arg_a, arg_b):
     y = 200
     y = 300
 
-dbg.breakpoint()
+pydbg.breakpoint()
 sample(4, 5)

@@ -1,7 +1,7 @@
 import sys
 import inspect
 
-from color import Color
+from pydbg.color import Color
 
 
 class Pydbg:
