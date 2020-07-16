@@ -7,3 +7,8 @@ Building a simple debugger in Python. MVP should have the following commands:
 * break at line number
 * continue
 * quit
+
+## Running example
+```
+python -m examples.cample
+```

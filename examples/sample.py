@@ -1,4 +1,4 @@
-import pydbg
+import pydbg.debugger
 
 def inner():
     x = 1 + 2
