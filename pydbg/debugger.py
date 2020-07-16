@@ -148,9 +148,9 @@ class Pydbg:
         return self.continue_execution
 
 
-
 def breakpoint():
-    dbg = Pydbg()
     sys.settrace(dbg.trace_calls)
 
+
+dbg = Pydbg()
 
