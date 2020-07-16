@@ -10,5 +10,5 @@ Building a simple debugger in Python. MVP should have the following commands:
 
 ## Running example
 ```
-python -m examples.cample
+python -m examples.sample
 ```
