@@ -88,41 +88,12 @@ class Pydbg:
             self.cmd = command['command']
 
         if self.cmd in ['s', 'n']:
-            return self.trace_lines
+            return self.trace_calls
 
-        if self.cmd == 'f':
-            return (cmd := None)
-
-        if self.cmd == 'c':
-            return self.continue_execution
-
-        raise 'unknown command'
-
-
-    def trace_lines(self, frame, event, arg):
-        if event != 'line':
-            return
-
-        if self.cmd == 'c':
-            return self.continue_execution
-
-        self.print_source(frame)
-
-        command = self.get_command()
-        self.cmd = command['command']
-
-        while(self.cmd == 'b'):
-            self.breakpoints[command['line']] = True
-            command = self.get_command()
-            self.cmd = command['command']
-
-        if self.cmd == 's':
-            return self.trace_lines
-        if self.cmd == 'n':
-            return None
         if self.cmd == 'f':
             del frame.f_trace
-            return None
+            return (cmd := None)
+
         if self.cmd == 'c':
             return self.continue_execution
 
@@ -138,12 +109,12 @@ class Pydbg:
             command = self.get_command()
             self.cmd = command['command']
 
-            while(cmd == 'b'):
+            while(self.cmd == 'b'):
                 self.breakpoints[command['line']] = True
                 command = self.get_command()
                 self.cmd = command['command']
 
-            return self.trace_lines
+            return self.trace_calls
 
         return self.continue_execution
 
