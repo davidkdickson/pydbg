@@ -18,7 +18,6 @@ class Pydbg:
         source = inspect.getsourcelines(code)[0]
         start_line = code.co_firstlineno
 
-
         print(Color.BLUE.format(f'{filename}:{func_name}:{line_no}'))
 
         for index, source_line in enumerate(source, start=0):
@@ -60,21 +59,16 @@ class Pydbg:
 
 
     def get_location(self, frame):
-        code = frame.f_code
-        func_name = code.co_name
-        line_no = frame.f_lineno
-        filename = code.co_filename
-        return f'{filename}:{line_no}'
+        return f'{frame.f_code.co_filename}:{frame.f_lineno}'
 
 
     def trace_calls(self, frame, event, arg):
-
         # do not trace lines as previous command was (n)ext or (f)inish
         if event == 'call' and self.cmd in ['n', 'f']:
             self.cmd = None
             return None
 
-        if event == 'call' and self.cmd == 'c' and not self.breakpoints.get(self.get_location(frame), False):
+        if self.cmd == 'c' and not self.breakpoints.get(self.get_location(frame), False):
             return self.continue_execution
 
         self.print_source(frame)
