@@ -1,1 +1,1 @@
-from pydbg.debugger import breakpoint
+__version__ = '0.1.0'

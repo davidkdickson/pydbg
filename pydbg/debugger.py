@@ -9,7 +9,6 @@ class Pydbg:
         self.breakpoints = {}
         self.cmd = None
 
-
     def print_source(self, frame):
         code = frame.f_code
         func_name = code.co_name
@@ -27,10 +26,8 @@ class Pydbg:
             if idx in [index - 1, index + 1] and index > 0:
                 print(source_line.rstrip())
 
-
     def prompt(self):
         print('(pydbg)', end=" ", flush=True)
-
 
     def get_command(self):
         self.prompt()
@@ -57,10 +54,8 @@ class Pydbg:
             print(Color.RED.format('unknown command'))
             self.prompt()
 
-
     def get_location(self, frame):
         return f'{frame.f_code.co_filename}:{frame.f_lineno}'
-
 
     def trace_calls(self, frame, event, arg):
         # do not trace lines as previous command was (n)ext or (f)inish
@@ -92,7 +87,6 @@ class Pydbg:
             return self.continue_execution
 
         raise 'unknown command'
-
 
     def continue_execution(self, frame, event, arg):
         location = self.get_location(frame)
