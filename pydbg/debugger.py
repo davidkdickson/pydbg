@@ -26,6 +26,7 @@ class Pydbg:
             if idx in [index - 1, index + 1] and index > 0:
                 print(source_line.rstrip())
 
+
     def prompt(self):
         print('(pydbg)', end=" ", flush=True)
 
