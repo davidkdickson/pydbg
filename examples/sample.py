@@ -1,20 +1,20 @@
 import pydbg.debugger
 
 def inner():
-    x = 1 + 2
-    y = 2 + x
-    return y
+    inner_x = 1
+    inner_x += 2
+    return inner_x
 
 
 def sample(arg_a, arg_b):
     addition = arg_a + arg_b
     multiply = addition * arg_a * arg_b
     inner()
-    y = 100 + 200
+    sample_y = 1
     print('Sample: ' + str(multiply))
-    y = 200
-    y = 300
+    sample_y += 2
+    sample_y += 3
 
 
-pydbg.breakpoint()
+pydbg.break_point()
 sample(4, 5)
