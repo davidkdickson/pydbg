@@ -19,4 +19,5 @@ def test_print_source(mocked_print, mocked_inspect):
     frame = Mock(f_lineno=3, f_code=code)
     mocked_inspect.getsourcelines.return_value = (['one', 'two', 'three', 'four', 'five'], 9)
     dbg.print_source(frame)
-    assert mocked_print.mock_calls == [call('\x1b[34mfile_name:function_name:3\x1b[00m\n  one\n> two\n  three')]
+    expected_output = '\x1b[34mfile_name:function_name:3\x1b[00m\n  one\n> two\n  three'
+    assert mocked_print.mock_calls == [call(expected_output)]
