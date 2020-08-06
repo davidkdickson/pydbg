@@ -11,19 +11,25 @@ class Pydbg:
     @staticmethod
     def print_source(frame):
         code = frame.f_code
-        line_no = frame.f_lineno
+        current_line = frame.f_lineno
         func_name = code.co_name
         filename = code.co_filename
-        start_line = code.co_firstlineno
+        first_line = code.co_firstlineno
         source = inspect.getsourcelines(code)[0]
-        output = color.BLUE.format(f'{filename}:{func_name}:{line_no}')
+        output = color.BLUE.format(f'{filename}:{func_name}:{current_line}')
 
-        for index, source_line in enumerate(source, start=0):
-            idx = line_no - start_line
-            if idx == index:
-                output += f'\n> {source_line.rstrip()[2:]}'
-            if idx in [index - 1, index + 1] and index > 0:
-                output += f'\n{source_line.rstrip()}'
+        idx = current_line - first_line
+
+        if idx == 0:
+            output += f'\n> {source[0].rstrip()}'
+            output += f'\n  {source[1].rstrip()}'
+            if len(source) > 2:
+                output += f'\n  {source[2].rstrip()}'
+        else:
+            output += f'\n  {source[idx - 1].rstrip()}'
+            output += f'\n> {source[idx].rstrip()}'
+            if len(source) > (idx + 1):
+                output += f'\n  {source[idx + 1].rstrip()}'
 
         print(output)
 
