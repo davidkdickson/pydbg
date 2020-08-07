@@ -39,6 +39,7 @@ class Pydbg:
 
     def get_command(self):
         self.prompt()
+        command_hash = None
         for line in sys.stdin:
             command = line.split()
             if not command:
@@ -50,17 +51,24 @@ class Pydbg:
                 sys.exit(0)
             if command[0] == 'b':
                 file, line = command[1].split(':')
-                return {'command': 'b', 'line': f'{file}:{line}'}
+                command_hash = {'command': 'b', 'line': f'{file}:{line}'}
+                break
             if command[0] == 'c':
-                return {'command': 'c'}
+                command_hash = {'command': 'c'}
+                break
             if command[0] == 's':
-                return {'command': 's'}
+                command_hash = {'command': 's'}
+                break
             if command[0] == 'n':
-                return {'command': 'n'}
+                command_hash = {'command': 'n'}
+                break
             if command[0] == 'f':
-                return {'command': 'f'}
+                command_hash = {'command': 'f'}
+                break
             print(color.RED.format('unknown command'))
             self.prompt()
+        return command_hash
+
 
     @staticmethod
     def get_location(frame):

@@ -1,16 +1,7 @@
 from unittest.mock import patch, call, Mock
 from pydbg.debugger import dbg
 
-@patch('builtins.print')
-def test_prompt(mocked_print):
-    dbg.prompt()
-    assert mocked_print.mock_calls == [call('(pydbg)', end=' ', flush=True)]
-
-def test_location():
-    frame = Mock()
-    frame.f_code.co_filename = 'file'
-    frame.f_lineno = 21
-    assert dbg.get_location(frame) == 'file:21'
+import pytest
 
 @patch('pydbg.debugger.inspect')
 @patch('builtins.print')
@@ -21,3 +12,29 @@ def test_print_source(mocked_print, mocked_inspect):
     dbg.print_source(frame)
     expected_output = '\x1b[34mfile_name:function_name:3\x1b[00m\n  one\n> two\n  three'
     assert mocked_print.mock_calls == [call(expected_output)]
+
+@patch('builtins.print')
+def test_prompt(mocked_print):
+    dbg.prompt()
+    assert mocked_print.mock_calls == [call('(pydbg)', end=' ', flush=True)]
+
+@pytest.mark.parametrize(
+    'command_input, result',
+    [
+        ('c', {'command': 'c'}),
+        ('s', {'command': 's'}),
+        ('n', {'command': 'n'}),
+        ('f', {'command': 'f'}),
+        ('b file_name:43', {'command': 'b', 'line': 'file_name:43'})
+    ])
+
+@patch('pydbg.debugger.sys')
+def test_get_command(mocked_sys, command_input, result):
+    mocked_sys.stdin = [command_input]
+    assert dbg.get_command() == result
+
+def test_location():
+    frame = Mock()
+    frame.f_code.co_filename = 'file_name'
+    frame.f_lineno = 21
+    assert dbg.get_location(frame) == 'file_name:21'
