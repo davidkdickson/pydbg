@@ -94,6 +94,7 @@ class Pydbg:
             self.cmd = None
             return None
 
+        # without checking for this, repeats on return statement
         if event == 'return':
             return self.trace_calls
 
