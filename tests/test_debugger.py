@@ -1,4 +1,4 @@
-from unittest.mock import patch, call, Mock
+from unittest.mock import patch, call, Mock, MagicMock
 from pydbg.debugger import dbg
 
 import pytest
@@ -28,13 +28,38 @@ def test_prompt(mocked_print):
         ('b file_name:43', {'command': 'b', 'line': 'file_name:43'})
     ])
 
+
 @patch('pydbg.debugger.sys')
 def test_get_command(mocked_sys, command_input, result):
     mocked_sys.stdin = [command_input]
     assert dbg.get_command() == result
 
-def test_location():
-    frame = Mock()
-    frame.f_code.co_filename = 'file_name'
-    frame.f_lineno = 21
-    assert dbg.get_location(frame) == 'file_name:21'
+
+@pytest.fixture
+def line():
+    return 21
+
+@pytest.fixture
+def filename():
+    return 'file_name'
+
+@pytest.fixture
+def frame(filename, line):
+    f = Mock()
+    f.f_code.co_filename = filename
+    f.f_lineno = line
+    return f
+
+
+def test_location(frame, filename, line):
+    assert dbg.get_location(frame) == f'{filename}:{line}'
+
+
+def test_continue_execution(frame):
+    assert dbg.continue_execution(frame) == dbg.continue_execution
+
+
+def test_breakpoint_continue_execution(frame, filename, line):
+    dbg.breakpoints[f'{filename}:{line}'] = True
+    dbg.print_frame_handle_break = Mock()
+    assert dbg.continue_execution(frame) == dbg.trace_calls

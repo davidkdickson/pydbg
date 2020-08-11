@@ -8,6 +8,7 @@ class Pydbg:
         self.breakpoints = {}
         self.cmd = None
 
+
     @staticmethod
     def print_source(frame):
         code = frame.f_code
@@ -33,9 +34,11 @@ class Pydbg:
 
         print(output)
 
+
     @staticmethod
     def prompt():
         print('(pydbg)', end=" ", flush=True)
+
 
     def get_command(self):
         self.prompt()
@@ -74,7 +77,18 @@ class Pydbg:
     def get_location(frame):
         return f'{frame.f_code.co_filename}:{frame.f_lineno}'
 
-    def trace_calls(self, frame, event, _arg):
+    def print_frame_handle_break(self, frame):
+        self.print_source(frame)
+        command = self.get_command()
+        self.cmd = command['command']
+
+        while self.cmd == 'b':
+            self.breakpoints[command['line']] = True
+            command = self.get_command()
+            self.cmd = command['command']
+
+
+    def trace_calls(self, frame, event, _arg=None):
         # do not trace lines as previous command was (n)ext or (f)inish
         if event == 'call' and self.cmd in ['n', 'f']:
             self.cmd = None
@@ -83,15 +97,7 @@ class Pydbg:
         if self.cmd == 'c' and not self.breakpoints.get(self.get_location(frame), False):
             return self.continue_execution
 
-        self.print_source(frame)
-
-        command = self.get_command()
-        self.cmd = command['command']
-
-        while self.cmd == 'b':
-            self.breakpoints[command['line']] = True
-            command = self.get_command()
-            self.cmd = command['command']
+        self.print_frame_handle_break(frame)
 
         if self.cmd in ['s', 'n']:
             return self.trace_calls
@@ -106,20 +112,13 @@ class Pydbg:
 
         raise 'unknown command'
 
-    def continue_execution(self, frame, _event, _arg):
+
+    def continue_execution(self, frame, _event=None, _arg=None):
         location = self.get_location(frame)
 
         if self.breakpoints.get(location, False):
             del self.breakpoints[location]
-            self.print_source(frame)
-            command = self.get_command()
-            self.cmd = command['command']
-
-            while self.cmd == 'b':
-                self.breakpoints[command['line']] = True
-                command = self.get_command()
-                self.cmd = command['command']
-
+            self.print_frame_handle_break(frame)
             return self.trace_calls
 
         return self.continue_execution
