@@ -94,6 +94,9 @@ class Pydbg:
             self.cmd = None
             return None
 
+        if event == 'return':
+            return self.trace_calls
+
         if self.cmd == 'c' and not self.breakpoints.get(self.get_location(frame), False):
             return self.continue_execution
 

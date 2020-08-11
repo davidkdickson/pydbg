@@ -14,6 +14,7 @@ def sample(arg_a, arg_b):
     print('Sample: ' + str(multiply))
     sample_y += 2
     sample_y += 3
+    return 1
 
 
 pydbg.break_point()
