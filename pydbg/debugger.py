@@ -89,7 +89,7 @@ class Pydbg:
 
 
     def trace_calls(self, frame, event, _arg=None):
-        # do not trace lines as previous command was (n)ext or (f)inish
+        # stepping in and previous command was (n)ext or (f)inish therfore do not trace lines
         if event == 'call' and self.cmd in ['n', 'f']:
             self.cmd = None
             return None
@@ -106,6 +106,7 @@ class Pydbg:
         if self.cmd in ['s', 'n']:
             return self.trace_calls
 
+        # stepping out therefore delete trace function and continue
         if self.cmd == 'f':
             del frame.f_trace
             self.cmd = None
