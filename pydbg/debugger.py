@@ -77,15 +77,17 @@ class Pydbg:
     def get_location(frame):
         return f'{frame.f_code.co_filename}:{frame.f_lineno}'
 
-    def print_frame_handle_break(self, frame):
+    def print_source_handle_break(self, frame):
         self.print_source(frame)
         command = self.get_command()
-        self.cmd = command['command']
+        cmd = command['command']
 
-        while self.cmd == 'b':
+        while cmd == 'b':
             self.breakpoints[command['line']] = True
             command = self.get_command()
-            self.cmd = command['command']
+            cmd = command['command']
+
+        return cmd
 
 
     def trace_calls(self, frame, event, _arg=None):
@@ -93,7 +95,7 @@ class Pydbg:
         if event == 'return':
             return self.trace_calls
 
-        # stepping in and previous command was (n)ext or (f)inish therfore do not trace lines
+        # function call and previous command was (n)ext or (f)inish so do not trace lines
         if event == 'call' and self.cmd in ['n', 'f']:
             self.cmd = None
             return None
@@ -106,7 +108,7 @@ class Pydbg:
             else:
                 return self.trace_calls
 
-        self.print_frame_handle_break(frame)
+        self.cmd = self.print_source_handle_break(frame)
 
         if self.cmd in ['s', 'n', 'c']:
             return self.trace_calls
