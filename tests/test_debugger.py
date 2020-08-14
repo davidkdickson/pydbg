@@ -54,12 +54,3 @@ def frame(filename, line):
 def test_location(frame, filename, line):
     assert dbg.get_location(frame) == f'{filename}:{line}'
 
-
-def test_continue_execution(frame):
-    assert dbg.continue_execution(frame) == dbg.continue_execution
-
-
-def test_breakpoint_continue_execution(frame, filename, line):
-    dbg.breakpoints[f'{filename}:{line}'] = True
-    dbg.print_frame_handle_break = Mock()
-    assert dbg.continue_execution(frame) == dbg.trace_calls

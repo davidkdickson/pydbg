@@ -98,35 +98,25 @@ class Pydbg:
         if event == 'return':
             return self.trace_calls
 
-        if self.cmd == 'c' and not self.breakpoints.get(self.get_location(frame), False):
-            return self.continue_execution
+        if self.cmd == 'c':
+            location = self.get_location(frame)
+            if self.breakpoints.get(location, False):
+                del self.breakpoints[location]
+                self.cmd = None
+            else:
+                return self.trace_calls
 
         self.print_frame_handle_break(frame)
 
-        if self.cmd in ['s', 'n']:
+        if self.cmd in ['s', 'n', 'c']:
             return self.trace_calls
 
         # stepping out therefore delete trace function and continue
         if self.cmd == 'f':
             del frame.f_trace
-            self.cmd = None
             return None
 
-        if self.cmd == 'c':
-            return self.continue_execution
-
         raise 'unknown command'
-
-
-    def continue_execution(self, frame, _event=None, _arg=None):
-        location = self.get_location(frame)
-
-        if self.breakpoints.get(location, False):
-            del self.breakpoints[location]
-            self.print_frame_handle_break(frame)
-            return self.trace_calls
-
-        return self.continue_execution
 
 
 def break_point():
