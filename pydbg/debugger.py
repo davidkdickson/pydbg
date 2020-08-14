@@ -89,14 +89,14 @@ class Pydbg:
 
 
     def trace_calls(self, frame, event, _arg=None):
+        # without checking for this, repeats on return statement
+        if event == 'return':
+            return self.trace_calls
+
         # stepping in and previous command was (n)ext or (f)inish therfore do not trace lines
         if event == 'call' and self.cmd in ['n', 'f']:
             self.cmd = None
             return None
-
-        # without checking for this, repeats on return statement
-        if event == 'return':
-            return self.trace_calls
 
         if self.cmd == 'c':
             location = self.get_location(frame)

@@ -53,4 +53,3 @@ def frame(filename, line):
 
 def test_location(frame, filename, line):
     assert dbg.get_location(frame) == f'{filename}:{line}'
-
