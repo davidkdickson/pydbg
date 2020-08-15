@@ -74,12 +74,10 @@ class Pydbg:
 
 
     @staticmethod
-    def get_location(frame):
+    def location(frame):
         return f'{frame.f_code.co_filename}:{frame.f_lineno}'
 
-    def print_source_handle_break(self, frame):
-        self.print_source(frame)
-
+    def get_next_command(self):
         while (command := self.get_command())['command'] == 'b':
             self.breakpoints[command['line']] = True
 
@@ -98,14 +96,15 @@ class Pydbg:
 
         # (c)ontinue until a breakpoint is reached
         if self.cmd == 'c':
-            location = self.get_location(frame)
+            location = self.location(frame)
             if self.breakpoints.get(location, False):
                 del self.breakpoints[location]
                 self.cmd = None
             else:
                 return self.trace_calls
 
-        self.cmd = self.print_source_handle_break(frame)
+        self.print_source(frame)
+        self.cmd = self.get_next_command()
 
         if self.cmd in ['s', 'n', 'c']:
             return self.trace_calls
