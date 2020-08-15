@@ -1,4 +1,4 @@
-from unittest.mock import patch, call, Mock, MagicMock
+from unittest.mock import patch, call, Mock
 from pydbg.debugger import dbg
 
 import pytest
@@ -7,16 +7,18 @@ import pytest
 @patch('builtins.print')
 def test_print_source(mocked_print, mocked_inspect):
     code = Mock(co_name='function_name', co_filename='file_name', co_firstlineno=2)
-    frame = Mock(f_lineno=3, f_code=code)
+    frame_mock = Mock(f_lineno=3, f_code=code)
     mocked_inspect.getsourcelines.return_value = (['one', 'two', 'three', 'four', 'five'], 9)
-    dbg.print_source(frame)
+    dbg.print_source(frame_mock)
     expected_output = '\x1b[34mfile_name:function_name:3\x1b[00m\n  one\n> two\n  three'
     assert mocked_print.mock_calls == [call(expected_output)]
+
 
 @patch('builtins.print')
 def test_prompt(mocked_print):
     dbg.prompt()
     assert mocked_print.mock_calls == [call('(pydbg)', end=' ', flush=True)]
+
 
 @pytest.mark.parametrize(
     'command_input, result',
@@ -45,11 +47,59 @@ def filename():
 
 @pytest.fixture
 def frame(filename, line):
-    f = Mock()
-    f.f_code.co_filename = filename
-    f.f_lineno = line
-    return f
+    frame_mock = Mock()
+    frame_mock.f_code.co_filename = filename
+    frame_mock.f_lineno = line
+    return frame_mock
 
 
 def test_location(frame, filename, line):
     assert dbg.location(frame) == f'{filename}:{line}'
+
+@pytest.mark.parametrize(
+    'event, previous_command, trace_result',
+    [
+        ('return', None, dbg.trace_calls),
+        ('call', 'n', None),
+        ('call', 'f', None),
+    ])
+
+
+def test_trace_calls_event_check(frame, event, previous_command, trace_result):
+    dbg.cmd = previous_command
+    assert dbg.trace_calls(frame, event) == trace_result
+
+def test_trace_calls_continue(frame):
+    dbg.cmd = 'c'
+    assert dbg.trace_calls(frame, 'line') == dbg.trace_calls
+
+def test_trace_calls_breakpoint(frame):
+    dbg.print_source = Mock()
+    dbg.get_next_command = Mock()
+    dbg.get_next_command.return_value = 's'
+    dbg.breakpoints[dbg.location(frame)] = True
+    assert dbg.trace_calls(frame, 'line') == dbg.trace_calls
+    assert not dbg.breakpoints
+
+
+def test_trace_calls_finish(frame):
+    dbg.print_source = Mock()
+    dbg.get_next_command = Mock()
+    dbg.get_next_command.return_value = 'f'
+    assert dbg.trace_calls(frame, 'line') == None
+
+
+@pytest.mark.parametrize(
+    'command, trace_result',
+    [
+        ('s', dbg.trace_calls),
+        ('n', dbg.trace_calls),
+        ('c', dbg.trace_calls),
+    ])
+
+
+def test_trace_calls(frame, command, trace_result):
+    dbg.print_source = Mock()
+    dbg.get_next_command = Mock()
+    dbg.get_next_command.return_value = command
+    assert dbg.trace_calls(frame, 'line') == trace_result
