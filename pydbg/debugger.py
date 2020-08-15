@@ -78,6 +78,7 @@ class Pydbg:
         return f'{frame.f_code.co_filename}:{frame.f_lineno}'
 
     def get_next_command(self):
+        # loop while breakpoints are being set
         while (command := self.get_command())['command'] == 'b':
             self.breakpoints[command['line']] = True
 
