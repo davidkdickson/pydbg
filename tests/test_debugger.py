@@ -29,23 +29,21 @@ def test_prompt(mocked_print):
         ('f', {'command': 'f'}),
         ('b file_name:43', {'command': 'b', 'line': 'file_name:43'})
     ])
-
-
 @patch('pydbg.debugger.sys')
 def test_get_command(mocked_sys, command_input, result):
     mocked_sys.stdin = [command_input]
     assert dbg.get_command() == result
 
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def line():
     return 21
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def filename():
     return 'file_name'
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def frame(filename, line):
     frame_mock = Mock()
     frame_mock.f_code.co_filename = filename
@@ -63,8 +61,6 @@ def test_location(frame, filename, line):
         ('call', 'n', None),
         ('call', 'f', None),
     ])
-
-
 def test_trace_calls_event_check(frame, event, previous_command, trace_result):
     dbg.cmd = previous_command
     assert dbg.trace_calls(frame, event) == trace_result
@@ -96,8 +92,6 @@ def test_trace_calls_finish(frame):
         ('n', dbg.trace_calls),
         ('c', dbg.trace_calls),
     ])
-
-
 def test_trace_calls(frame, command, trace_result):
     dbg.print_source = Mock()
     dbg.get_next_command = Mock()
