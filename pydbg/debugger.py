@@ -79,15 +79,11 @@ class Pydbg:
 
     def print_source_handle_break(self, frame):
         self.print_source(frame)
-        command = self.get_command()
-        cmd = command['command']
 
-        while cmd == 'b':
+        while (command := self.get_command())['command'] == 'b':
             self.breakpoints[command['line']] = True
-            command = self.get_command()
-            cmd = command['command']
 
-        return cmd
+        return command['command']
 
 
     def trace_calls(self, frame, event, _arg=None):
@@ -100,6 +96,7 @@ class Pydbg:
             self.cmd = None
             return None
 
+        # (c)ontinue until a breakpoint is reached
         if self.cmd == 'c':
             location = self.get_location(frame)
             if self.breakpoints.get(location, False):
