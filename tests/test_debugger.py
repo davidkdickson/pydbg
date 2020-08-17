@@ -6,11 +6,11 @@ import pytest
 @patch('pydbg.debugger.inspect')
 @patch('builtins.print')
 def test_print_source(mocked_print, mocked_inspect):
-    code = Mock(co_name='function_name', co_filename='file_name', co_firstlineno=2)
+    code = Mock(co_name='function_name', co_filename='file_name')
     frame_mock = Mock(f_lineno=3, f_code=code)
     mocked_inspect.getsourcelines.return_value = (['one', 'two', 'three', 'four', 'five'], 9)
     dbg.print_source(frame_mock)
-    expected_output = '\x1b[34mfile_name:function_name:3\x1b[00m\n  one\n> two\n  three'
+    expected_output = '\x1b[34mfile_name:function_name:3\x1b[00m\n  two\n> three\n  four'
     assert mocked_print.mock_calls == [call(expected_output)]
 
 
@@ -43,7 +43,7 @@ def line():
 def filename():
     return 'file_name'
 
-@pytest.fixture(scope='module')
+@pytest.fixture
 def frame(filename, line):
     frame_mock = Mock()
     frame_mock.f_code.co_filename = filename

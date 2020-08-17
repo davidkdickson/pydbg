@@ -15,22 +15,17 @@ class Pydbg:
         current_line = frame.f_lineno
         func_name = code.co_name
         filename = code.co_filename
-        first_line = code.co_firstlineno
-        source = inspect.getsourcelines(code)[0]
+        module = inspect.getmodule(code)
+        source = inspect.getsourcelines(module)[0]
         output = color.BLUE.format(f'{filename}:{func_name}:{current_line}')
 
-        idx = current_line - first_line
+        if (current_line - 2) >= 0:
+            output += f'\n  {source[current_line - 2].rstrip()}'
 
-        if idx == 0:
-            output += f'\n> {source[0].rstrip()}'
-            output += f'\n  {source[1].rstrip()}'
-            if len(source) > 2:
-                output += f'\n  {source[2].rstrip()}'
-        else:
-            output += f'\n  {source[idx - 1].rstrip()}'
-            output += f'\n> {source[idx].rstrip()}'
-            if len(source) > (idx + 1):
-                output += f'\n  {source[idx + 1].rstrip()}'
+        output += f'\n> {source[current_line - 1].rstrip()}'
+
+        if current_line < len(source):
+            output += f'\n  {source[current_line].rstrip()}'
 
         print(output)
 
@@ -119,6 +114,18 @@ class Pydbg:
 
 
 def break_point():
+    # start tracing current frame
+    previous_frame = inspect.currentframe().f_back
+    module = inspect.getmodule(previous_frame)
+    previous_frame.f_trace = dbg.trace_calls
+
+    # trace all frames up the stack
+    while inspect.getmodule(previous_frame.f_back) == module:
+        previous_frame = previous_frame.f_back
+        previous_frame.f_trace = dbg.trace_calls
+
+    inspect.currentframe().f_back.f_trace = dbg.trace_calls
+    # trace subsequent frames
     sys.settrace(dbg.trace_calls)
 
 
