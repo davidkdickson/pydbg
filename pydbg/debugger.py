@@ -124,7 +124,6 @@ def break_point():
         previous_frame = previous_frame.f_back
         previous_frame.f_trace = dbg.trace_calls
 
-    inspect.currentframe().f_back.f_trace = dbg.trace_calls
     # trace subsequent frames
     sys.settrace(dbg.trace_calls)
 
