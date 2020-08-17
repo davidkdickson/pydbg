@@ -1,6 +1,6 @@
 import pydbg.debugger
 
-x = 2
+VARIABLE = 2
 
 def testing():
     return 1
@@ -22,4 +22,4 @@ def sample(arg_a, arg_b):
     sample_y += 3
     return 1
 
-sample(4, 5)
+sample(VARIABLE, 5)
