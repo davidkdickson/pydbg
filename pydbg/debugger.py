@@ -7,6 +7,7 @@ class Pydbg:
     def __init__(self):
         self.breakpoints = {}
         self.cmd = None
+        self.entrypoint = None
 
 
     @staticmethod
@@ -81,6 +82,12 @@ class Pydbg:
 
 
     def trace_calls(self, frame, event, _arg=None):
+        if frame.f_code.co_filename == self.entrypoint:
+            self.entrypoint = None
+
+        if self.entrypoint:
+            return None
+
         # without checking for this, repeats on return statement
         if event == 'return':
             return self.trace_calls
