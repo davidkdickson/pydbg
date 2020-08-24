@@ -91,7 +91,7 @@ class Pydbg:
         if frame.f_code.co_filename == self.entrypoint:
             self.entrypoint = None
 
-
+        # ignore when at start or end of importing module when in script mode
         if (self.file and self.file not in map(lambda t: t[1], inspect.stack())) or self.entrypoint:
             return None
 
