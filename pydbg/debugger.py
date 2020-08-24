@@ -91,17 +91,12 @@ class Pydbg:
         if frame.f_code.co_filename == self.entrypoint:
             self.entrypoint = None
 
-        if frame.f_code.co_name == '<module>' and event == 'call':
-            return self.trace_calls
 
-        if self.file and self.file not in map(lambda t: t[1], inspect.stack()):
+        if (self.file and self.file not in map(lambda t: t[1], inspect.stack())) or self.entrypoint:
             return None
 
-        if self.entrypoint:
-            return None
-
-        # without checking for this, repeats on return statement
-        if event == 'return':
+        # without check repeats on return statement and entering a module using script mode
+        if (frame.f_code.co_name == '<module>' and event == 'call') or event == 'return':
             return self.trace_calls
 
         # function call and previous command was (n)ext or (f)inish so do not trace lines
