@@ -37,6 +37,11 @@ class Pydbg:
         print('(pydbg)', end=" ", flush=True)
 
 
+    def set_module(self, path):
+        self.entrypoint = path
+        self.file = path
+
+
     def get_command(self):
         self.prompt()
         command_hash = None
@@ -85,6 +90,9 @@ class Pydbg:
     def trace_calls(self, frame, event, _arg=None):
         if frame.f_code.co_filename == self.entrypoint:
             self.entrypoint = None
+
+        if frame.f_code.co_name == '<module>' and event == 'call':
+            return self.trace_calls
 
         if self.file and self.file not in map(lambda t: t[1], inspect.stack()):
             return None
