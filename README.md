@@ -8,7 +8,12 @@ Building a simple debugger in Python. MVP should have the following commands:
 * continue (done)
 * quit (done)
 
-## Running example
+## Running examples
+Example setting a breakpoint within a script using `pydbg.breakpoint()`.
 ```
 python -m examples.sample
+```
+Enters debugger at start of script.
+```
+python -m pydbg examples/script.py
 ```
