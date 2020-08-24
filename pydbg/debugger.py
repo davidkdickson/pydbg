@@ -8,6 +8,7 @@ class Pydbg:
         self.breakpoints = {}
         self.cmd = None
         self.entrypoint = None
+        self.file = None
 
 
     @staticmethod
@@ -84,6 +85,9 @@ class Pydbg:
     def trace_calls(self, frame, event, _arg=None):
         if frame.f_code.co_filename == self.entrypoint:
             self.entrypoint = None
+
+        if self.file and self.file not in map(lambda t: t[1], inspect.stack()):
+            return None
 
         if self.entrypoint:
             return None
