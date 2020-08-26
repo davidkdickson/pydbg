@@ -97,3 +97,23 @@ def test_trace_calls(frame, command, trace_result):
     dbg.get_next_command = Mock()
     dbg.get_next_command.return_value = command
     assert dbg.trace_calls(frame, 'line') == trace_result
+
+
+@patch('pydbg.debugger.inspect')
+def test_trace_not_in_stack(mocked_inspect, frame):
+    mocked_inspect.stack.return_value = [(1,1)]
+    dbg.file = 'entry'
+    assert dbg.trace_calls(frame, 'line') == None
+
+
+def test_trace_not_at_entrypoint(frame):
+    dbg.entrypoint = 'entrypoint'
+    assert dbg.trace_calls(frame, 'line') == None
+
+
+def test_trace_skip_module_load(frame):
+    dbg.entrypoint = None
+    dbg.file = None
+    frame.f_code.co_name = '<module>'
+    assert dbg.trace_calls(frame, 'call') == dbg.trace_calls
+

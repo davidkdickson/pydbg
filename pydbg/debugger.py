@@ -89,11 +89,12 @@ class Pydbg:
 
 
     def trace_calls(self, frame, event, _arg=None):
+        # clear once hit module entrypoint
         if frame.f_code.co_filename == self.entrypoint:
             self.entrypoint = None
 
         # ignore when at start or end of importing module when in script mode
-        if (self.file and self.file not in map(lambda t: t[1], inspect.stack())) or self.entrypoint:
+        if self.entrypoint or (self.file and self.file not in map(lambda t: t[1], inspect.stack())):
             return None
 
         # without check repeats on return statement and entering a module using script mode
