@@ -116,4 +116,3 @@ def test_trace_skip_module_load(frame):
     dbg.file = None
     frame.f_code.co_name = '<module>'
     assert dbg.trace_calls(frame, 'call') == dbg.trace_calls
-
