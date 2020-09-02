@@ -1,5 +1,6 @@
 import sys
 import inspect
+from typing import Optional, Dict
 
 from pydbg import color
 
@@ -13,6 +14,7 @@ class Pydbg:
 
     @staticmethod
     def print_source(frame):
+        print(type(frame))
         code = frame.f_code
         current_line = frame.f_lineno
         func_name = code.co_name
@@ -33,16 +35,16 @@ class Pydbg:
 
 
     @staticmethod
-    def prompt():
+    def prompt() -> None:
         print('(pydbg)', end=" ", flush=True)
 
 
-    def set_module(self, path):
+    def set_module(self, path) -> None:
         self.entrypoint = path
         self.file = path
 
 
-    def get_command(self):
+    def get_command(self) -> Optional[Dict[str, str]]:
         self.prompt()
         command_hash = None
         for line in sys.stdin:
@@ -76,7 +78,7 @@ class Pydbg:
 
 
     @staticmethod
-    def location(frame):
+    def location(frame) -> str:
         return f'{frame.f_code.co_filename}:{frame.f_lineno}'
 
 
