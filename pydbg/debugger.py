@@ -1,7 +1,6 @@
 import sys
 import inspect
 
-from typing import Optional, Dict
 from types import FrameType
 
 from pydbg import color
