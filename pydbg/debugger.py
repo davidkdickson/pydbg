@@ -1,6 +1,8 @@
 import sys
 import inspect
+
 from typing import Optional, Dict
+from types import FrameType
 
 from pydbg import color
 
@@ -13,13 +15,16 @@ class Pydbg:
 
 
     @staticmethod
-    def print_source(frame):
-        print(type(frame))
+    def print_source(frame: FrameType) -> None:
         code = frame.f_code
         current_line = frame.f_lineno
         func_name = code.co_name
         filename = code.co_filename
         module = inspect.getmodule(code)
+
+        if not module:
+            return
+
         source = inspect.getsourcelines(module)[0]
         output = color.BLUE.format(f'{filename}:{func_name}:{current_line}')
 
