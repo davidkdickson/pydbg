@@ -44,14 +44,15 @@ class Pydbg:
         print('(pydbg)', end=" ", flush=True)
 
 
-    def set_module(self, path) -> None:
+    def set_module(self, path: str) -> None:
         self.entrypoint = path
         self.file = path
 
 
-    def get_command(self) -> Optional[Dict[str, str]]:
+    def get_command(self) -> Dict[str, str]:
         self.prompt()
-        command_hash = None
+        command_hash = {'command': 'q'}
+
         for line in sys.stdin:
             command = line.split()
             if not command:
@@ -59,8 +60,8 @@ class Pydbg:
                 self.prompt()
                 continue
             if command[0] == 'q':
-                print(color.RED.format('quitting debugger'))
-                sys.exit(0)
+                command_hash = {'command': 'q'}
+                break
             if command[0] == 'b':
                 file, line = command[1].split(':')
                 command_hash = {'command': 'b', 'line': f'{file}:{line}'}
@@ -83,13 +84,13 @@ class Pydbg:
 
 
     @staticmethod
-    def location(frame) -> str:
+    def location(frame: FrameType) -> str:
         return f'{frame.f_code.co_filename}:{frame.f_lineno}'
 
 
-    def get_next_command(self):
+    def get_next_command(self) -> str:
         # loop while breakpoints are being set
-        while (command := self.get_command())['command'] == 'b':
+        while (command := self.get_command()) == 'b':
             self.breakpoints[command['line']] = True
 
         return command['command']
@@ -124,6 +125,10 @@ class Pydbg:
 
         self.print_source(frame)
         self.cmd = self.get_next_command()
+
+        if self.cmd == 'q':
+            print(color.RED.format('quitting debugger'))
+            sys.exit(0)
 
         if self.cmd in ['s', 'n', 'c']:
             return self.trace_calls
