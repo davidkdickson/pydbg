@@ -141,16 +141,16 @@ class Pydbg:
         raise 'unknown command'
 
 
-def break_point():
+def break_point() -> None:
     # start tracing current frame
     previous_frame = inspect.currentframe().f_back
     module = inspect.getmodule(previous_frame)
-    previous_frame.f_trace = dbg.trace_calls
+    previous_frame.f_trace = dbg.trace_calls # type: ignore
 
     # trace all frames up the stack
     while inspect.getmodule(previous_frame.f_back) == module:
         previous_frame = previous_frame.f_back
-        previous_frame.f_trace = dbg.trace_calls
+        previous_frame.f_trace = dbg.trace_calls # type: ignore
 
     # trace subsequent frames
     sys.settrace(dbg.trace_calls)
