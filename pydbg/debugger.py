@@ -2,6 +2,7 @@ import sys
 import inspect
 
 from types import FrameType
+from typing import Dict
 
 from pydbg import color
 
