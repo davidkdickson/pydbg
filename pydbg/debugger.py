@@ -90,7 +90,7 @@ class Pydbg:
 
     def get_next_command(self) -> str:
         # loop while breakpoints are being set
-        while (command := self.get_command()) == 'b':
+        while (command := self.get_command())['command'] == 'b':
             self.breakpoints[command['line']] = True
 
         return command['command']
