@@ -2,9 +2,11 @@ import sys
 import inspect
 
 from types import FrameType
-from typing import Dict
+from typing import Dict, Any, Optional, Callable
 
 from pydbg import color
+from pydbg.commanderror import CommandError
+
 
 class Pydbg:
     def __init__(self):
@@ -56,7 +58,7 @@ class Pydbg:
         for line in sys.stdin:
             command = line.split()
             if not command:
-                print(color.RED.format('unknown command'))
+                print(color.RED.format(f'Unknown command {command[0]}'))
                 self.prompt()
                 continue
             if command[0] == 'q':
@@ -78,7 +80,7 @@ class Pydbg:
             if command[0] == 'f':
                 command_hash = {'command': 'f'}
                 break
-            print(color.RED.format('unknown command'))
+            print(color.RED.format(f'Unknown command {command[0]}'))
             self.prompt()
         return command_hash
 
@@ -96,7 +98,7 @@ class Pydbg:
         return command['command']
 
 
-    def trace_calls(self, frame, event, _arg=None):
+    def trace_calls(self, frame: FrameType, event: str, _arg: Any) -> Optional[Callable]:
         # clear once hit module entrypoint
         if frame.f_code.co_filename == self.entrypoint:
             self.entrypoint = None
@@ -135,20 +137,30 @@ class Pydbg:
 
         # stepping out therefore delete trace function and continue
         if self.cmd == 'f':
-            del frame.f_trace
+            del frame.f_trace # type:ignore
             return None
 
-        raise 'unknown command'
+        raise CommandError(f'Uknown command {self.cmd}')
 
 
 def break_point() -> None:
     # start tracing current frame
-    previous_frame = inspect.currentframe().f_back
+    if (current_frame := inspect.currentframe()) is None:
+        return
+
+    previous_frame = current_frame.f_back
     module = inspect.getmodule(previous_frame)
     previous_frame.f_trace = dbg.trace_calls # type: ignore
 
     # trace all frames up the stack
-    while inspect.getmodule(previous_frame.f_back) == module:
+    if previous_frame is None:
+        return
+
+    previous_frame = previous_frame.f_back
+
+    while inspect.getmodule(previous_frame) == module:
+        if previous_frame is None:
+            break
         previous_frame = previous_frame.f_back
         previous_frame.f_trace = dbg.trace_calls # type: ignore
 
