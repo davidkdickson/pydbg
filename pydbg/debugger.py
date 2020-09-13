@@ -142,27 +142,18 @@ class Pydbg:
 
 
 def break_point() -> None:
-    # trace subsequent frames
-    sys.settrace(dbg.trace_calls)
-
-    if (current_frame := inspect.currentframe()) is None:
-        return
-
     # start tracing current frame
-    previous_frame = current_frame.f_back
+    previous_frame = inspect.currentframe().f_back
     module = inspect.getmodule(previous_frame)
     previous_frame.f_trace = dbg.trace_calls # type: ignore
 
     # trace all frames up the stack
-    if previous_frame is None:
-        return
-
     while inspect.getmodule(previous_frame.f_back) == module:
-        if previous_frame is None:
-            break
         previous_frame = previous_frame.f_back
         previous_frame.f_trace = dbg.trace_calls # type: ignore
 
+    # trace subsequent frames
+    sys.settrace(dbg.trace_calls)
 
 
 dbg = Pydbg()
