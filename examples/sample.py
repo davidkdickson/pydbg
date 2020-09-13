@@ -8,6 +8,7 @@ def testing():
 
 def inner():
     inner_x = 1
+    pydbg.break_point()
     inner_x += 2
     return inner_x
 
@@ -15,7 +16,6 @@ def inner():
 def function(arg_a, arg_b):
     addition = arg_a + arg_b
     multiply = addition * arg_a * arg_b
-    pydbg.break_point()
     inner()
     sample_y = 1
     print('Sample: ' + str(multiply))
