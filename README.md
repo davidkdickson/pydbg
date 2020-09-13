@@ -1,6 +1,6 @@
 # Pydbg
 
-Building a simple debugger in Python. Has the following commands:
+As a learning exercise built a basic debugger in Python. Pydbg currently has the following commands:
 * (s)tep in
 * step over (n)
 * step out (f)
