@@ -5,11 +5,8 @@ from types import FrameType
 from typing import Dict, Any, Optional, Callable
 
 from pydbg import color
+from pydbg.commanderror import CommandError
 
-class CommandError(Exception):
-    def __init__(self, message):
-        super(CommandError, self).__init__(message)
-        self.message = message
 
 class Pydbg:
     def __init__(self):
