@@ -31,10 +31,10 @@ class Pydbg:
 if __name__ == "__main__":
     pydbg = Pydbg()
 
-    def fibonacci(num) -> int:
-        if num in [0, 1]:
-            return num
-        return fibonacci(num - 1) + fibonacci(num - 2)
+    def factorial(n):
+        if n == 0:
+            return 1
+        return n * factorial(n - 1)
 
     pydbg.break_point()
-    fibonacci(2)
+    print(factorial(3))
