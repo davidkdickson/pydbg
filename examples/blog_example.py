@@ -10,18 +10,9 @@ class Pydbg:
         print(line)
 
 
-    def get_command(self):
-        return 's'
-
-
     def trace_calls(self, frame: FrameType, _event, _arg):
         self.print_source(frame)
-        self.cmd = self.get_command()
-
-        if self.cmd == 's':
-            return self.trace_calls
-
-
+        return self.trace_calls
         raise 'Unknown command'
 
 
