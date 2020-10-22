@@ -13,7 +13,6 @@ class Pydbg:
     def trace_calls(self, frame: FrameType, _event, _arg):
         self.print_source(frame)
         return self.trace_calls
-        raise 'Unknown command'
 
 
     def break_point(self):
